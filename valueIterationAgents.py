@@ -63,7 +63,25 @@ class ValueIterationAgent(ValueEstimationAgent):
     def runValueIteration(self):
         # Write value iteration code here
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # Get all states from the MDP 
+        states = self.mdp.getStates()
+        # initialize values to zero once 
+        self.values = util.Counter()
+
+        # Loop for the number of self.iterations
+        for iteration in range(self.iterations):
+            tempvalues = self.values.copy()
+            for state in states:
+                if not self.mdp.isTerminal(state):
+                    maxActionV = float("-inf")
+                    actions = self.mdp.getPossibleActions(state)
+                    for action in actions:
+                        actionvalue = self.computeQValueFromValues(state, action)
+                        if maxActionV <= actionvalue:
+                            maxActionV = actionvalue
+                    tempvalues[state] = maxActionV
+            self.values = tempvalues
+    
 
 
     def getValue(self, state):
