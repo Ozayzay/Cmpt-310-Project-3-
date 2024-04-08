@@ -70,6 +70,7 @@ class ValueIterationAgent(ValueEstimationAgent):
 
         # Loop for the number of self.iterations
         for iteration in range(self.iterations):
+            # creating a new dictionary of tempvalues with same keys as self.values
             tempvalues = self.values.copy()
             for state in states:
                 if not self.mdp.isTerminal(state):
@@ -78,9 +79,9 @@ class ValueIterationAgent(ValueEstimationAgent):
                     for action in actions:
                         actionvalue = self.computeQValueFromValues(state, action)
                         if maxActionV <= actionvalue:
-                            maxActionV = actionvalue
-                    tempvalues[state] = maxActionV
-            self.values = tempvalues
+                            maxActionV = actionvalue 
+                    tempvalues[state] = maxActionV # Assigning the value for a given state as max value
+            self.values = tempvalues # store the updated values 
     
 
 
@@ -97,7 +98,19 @@ class ValueIterationAgent(ValueEstimationAgent):
           value function stored in self.values.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #Get a list of next state and probability pairs i.e the states the agent could transition to
+        # and their probabilities of transitioning 
+        transitionstates = self.mdp.getTransitionStatesAndProbs(state, action)
+        qvalue= 0
+
+        for nextstate, prob in transitionstates:
+            # self.mdp.getrewards returns the immediate reward for transition from current 
+            # state to the next by taking action 
+            # Self.values[next state] is the value of state we are transitioning into from
+            # the previous iteration of the algorithm
+            qvalue += prob * (self.mdp.getReward(state, action, nextstate) + self.discount * self.values[nextstate])
+
+        return qvalue
 
 
     def computeActionFromValues(self, state):
