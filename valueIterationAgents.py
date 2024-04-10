@@ -123,14 +123,29 @@ class ValueIterationAgent(ValueEstimationAgent):
           terminal state, you should return None.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        
+        if self.mdp.isTerminal(state):
+            return None
+    
+        maxQValue = float("-inf")
+        bestAction = None
+
+        for action in self.mdp.getPossibleActions(state):
+            # Computer q-value for the current state and action 
+            qValue = self.computeQValueFromValues(state, action)
+            # Check if this q-value is greater than the current
+            if qValue > maxQValue:
+                maxQValue = qValue
+                bestAction = action
+        return bestAction
+
 
 
 
     def getPolicy(self, state):
         "Returns the policy at the state."
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.computeActionFromValues
 
 
     def getAction(self, state):
@@ -159,5 +174,66 @@ class PrioritizedSweepingValueIterationAgent(ValueIterationAgent):
         ValueIterationAgent.__init__(self, mdp, discount, iterations)
 
     def runValueIteration(self):
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        "*****Your code here ****"
+        
+        states = self.mdp.getStates()
+
+        # Initialize the priority queue
+        priorityQueue = util.PriorityQueue()
+
+       # intialize a dictionary to store predecessors for every state
+        predecessors = {}
+        for state in states:
+            predecessors[state] = set()
+
+        for state in states:
+            for action in self.mdp.getPossibleActions(state):
+                for nextstate, prob in self.mdp.getTransitionStatesAndProbs(state, action):
+                    # For each next state add the current state as a predecessor 
+                    predecessors[nextstate].add(state)
+
+        # For each state calculate the maximum Q value difference between each state's current value 
+        # and the maximum Q value of all its actions to populate priority queue
+
+        for state in states:
+            if not self.mdp.isTerminal(state):
+                maxAValue = float("-inf")
+                for action in self.mdp.getPossibleActions(state):
+                    actionvalue = self.computeQValueFromValues(state, action)
+                    if maxAValue <= actionvalue:
+                        maxAValue = actionvalue
+                    diff = abs(self.values[state] - maxAValue)
+                    priorityQueue.push(state, -diff)
+
+        
+        # Perform the required number of loops
+
+        for iteration in range(self.iterations):
+            # return if priority queue is empty
+            if priorityQueue.isEmpty():
+                return 
+            # Pop the highest priority state off the queue
+            highestPriorityState = priorityQueue.pop()
+            if not self.mdp.isTerminal(highestPriorityState):
+                maxActionV = float("-inf")
+                actions = self.mdp.getPossibleActions(highestPriorityState)
+                for action in actions:
+                    actionvalue = self.computeQValueFromValues(highestPriorityState, action)
+                    if maxActionV <= actionvalue:
+                        maxActionV = actionvalue 
+                self.values[highestPriorityState] = maxActionV
+        
+        # Update the priorities of predecessors by reevaluation Max Q value
+        # and add them to the priority queue again
+
+        for nextState in predecessors[highestPriorityState]:
+            maxAValue = float("-inf")
+            for pAction in self.mdp.getPossibleActions(nextState):
+                pActionValue = self.computeQValueFromValues(nextState, pAction)
+                if maxAValue <= pActionValue:
+                    maxAValue = pActionValue
+            # Re calculate the difference 
+            difference = abs( self.getValue(nextstate) - maxAValue)
+            if difference > self.theta:
+                priorityQueue.update(nextState, -difference)
+        
