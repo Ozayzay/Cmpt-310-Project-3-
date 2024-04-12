@@ -25,6 +25,14 @@
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
+#############
+# Citations :
+#https://www.youtube.com/watch?v=9g32v7bK3Co&ab_channel=StanfordOnline
+#https://www.youtube.com/watch?v=HpaHTfY52RQ&ab_channel=StanfordOnline
+#https://gibberblot.github.io/rl-notes/single-agent/value-iteration.html
+#https://medium.com/@ngao7/markov-decision-process-value-iteration-2d161d50a6ff
+
+#################
 #test
 
 import mdp, util
